@@ -425,6 +425,69 @@ app.get('/api/suggestions/:id/vote', (req, res) => {
   res.json({ voted: !!voted });
 });
 
+// ===========================================
+// ADMIN API (Simple password protection)
+// ===========================================
+
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'tww2025';
+
+function checkAdmin(req, res, next) {
+  const password = req.headers['x-admin-password'];
+  if (password === ADMIN_PASSWORD) {
+    next();
+  } else {
+    res.status(401).json({ error: 'Unauthorized' });
+  }
+}
+
+// Get all bubbles (including expired)
+app.get('/api/admin/bubbles', (req, res) => {
+  try {
+    const bubbles = dbAll('SELECT * FROM bubbles ORDER BY created_at DESC');
+    res.json(bubbles);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch bubbles' });
+  }
+});
+
+// Add votes to a bubble (for testing)
+app.post('/api/admin/bubbles/:id/add-votes', (req, res) => {
+  try {
+    const { id } = req.params;
+    const { votes } = req.body;
+    
+    if (!votes || typeof votes !== 'number') {
+      return res.status(400).json({ error: 'Invalid votes count' });
+    }
+    
+    const now = Date.now();
+    dbRun('UPDATE bubbles SET score = score + ?, last_interaction = ? WHERE id = ?', [votes, now, id]);
+    
+    const updatedBubble = dbGet('SELECT * FROM bubbles WHERE id = ?', [id]);
+    broadcast({ type: 'update_bubble', bubble: updatedBubble });
+    
+    res.json({ success: true, bubble: updatedBubble });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to add votes' });
+  }
+});
+
+// Delete a bubble
+app.delete('/api/admin/bubbles/:id', (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    dbRun('DELETE FROM bubbles WHERE id = ?', [id]);
+    dbRun('DELETE FROM votes WHERE bubble_id = ?', [id]);
+    
+    broadcast({ type: 'cleanup' });
+    
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete bubble' });
+  }
+});
+
 // Cleanup old bubbles periodically (runs every 5 minutes)
 setInterval(() => {
   if (!db) return;
