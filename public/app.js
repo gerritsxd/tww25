@@ -250,11 +250,9 @@
 
 
   function getBubbleClass(bubble) {
-    // Bot bubbles colored by source
+    // All bot bubbles are grey
     if (bubble.bot_source) {
-      if (bubble.bot_source === 'student') return 'student';
-      if (bubble.bot_source === 'community') return 'community';
-      return 'bot'; // eventbrite and others
+      return 'bot';
     }
     
     // User bubbles color by score

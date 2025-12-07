@@ -119,29 +119,11 @@ body {
 }
 
 .dot.bot {
-  color: var(--bot);
+  color: #888;
+  opacity: 0.8;
   text-shadow:
-    0 0 4px currentColor,
-    0 0 8px currentColor,
-    0 0 12px var(--bot-glow),
-    0 4px 8px rgba(0, 0, 0, 0.5);
-}
-
-.dot.student {
-  color: var(--student);
-  text-shadow:
-    0 0 4px currentColor,
-    0 0 8px currentColor,
-    0 0 12px var(--student-glow),
-    0 4px 8px rgba(0, 0, 0, 0.5);
-}
-
-.dot.community {
-  color: var(--community);
-  text-shadow:
-    0 0 4px currentColor,
-    0 0 8px currentColor,
-    0 0 12px var(--community-glow),
+    0 0 4px rgba(136, 136, 136, 0.4),
+    0 0 8px rgba(136, 136, 136, 0.3),
     0 4px 8px rgba(0, 0, 0, 0.5);
 }
 
