@@ -96,7 +96,29 @@
     // No clustering - we want to see individual bubble sizes!
     // Bubbles are added directly to map
 
-    // Double-tap/double-click on map to create a bubble
+    // Double-tap/double-click on map to create a bubble (with iOS fix)
+    let lastTap = 0;
+    let lastTapPos = null;
+    
+    map.on('click', (e) => {
+      const now = Date.now();
+      const tapPos = { lat: e.latlng.lat, lng: e.latlng.lng };
+      
+      // Check if this is a double-tap (within 500ms and same position)
+      if (lastTap && (now - lastTap) < 500 && lastTapPos) {
+        const distance = Math.abs(tapPos.lat - lastTapPos.lat) + Math.abs(tapPos.lng - lastTapPos.lng);
+        if (distance < 0.0001) { // Same position
+          handleMapDoubleClick(e);
+          lastTap = 0; // Reset
+          return;
+        }
+      }
+      
+      lastTap = now;
+      lastTapPos = tapPos;
+    });
+    
+    // Keep dblclick for desktop
     map.on('dblclick', handleMapDoubleClick);
 
     // Get user location
@@ -287,9 +309,25 @@
     const icon = createBubbleIcon(bubble);
     const marker = L.marker([bubble.lat, bubble.lng], { icon });
 
-    // Double-tap to open bubble details
+    // Double-tap to open bubble details (iOS-friendly)
+    let markerLastTap = 0;
+    
+    marker.on('click', (e) => {
+      L.DomEvent.stopPropagation(e);
+      const now = Date.now();
+      
+      if (markerLastTap && (now - markerLastTap) < 500) {
+        // Double-tap detected!
+        openBubble(bubble.id);
+        markerLastTap = 0;
+      } else {
+        markerLastTap = now;
+      }
+    });
+    
+    // Keep dblclick for desktop
     marker.on('dblclick', (e) => {
-      L.DomEvent.stopPropagation(e); // Prevent map double-click
+      L.DomEvent.stopPropagation(e);
       openBubble(bubble.id);
     });
     
