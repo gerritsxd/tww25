@@ -781,13 +781,39 @@
   // WELCOME TUTORIAL
   // ===========================================
   function initWelcome() {
+    const pwaModal = document.getElementById('pwaModal');
     const welcomeModal = document.getElementById('welcomeModal');
+    const pwaSkipBtn = document.getElementById('pwaSkipBtn');
     const startBtn = document.getElementById('startBtn');
     const hasVisited = localStorage.getItem('tww_visited');
+    const hasSeenPWA = localStorage.getItem('tww_seen_pwa');
 
-    if (hasVisited) {
-      // User has visited before, hide welcome
-      welcomeModal.classList.remove('active');
+    // Detect iOS
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    
+    // Detect if running as standalone PWA (already installed)
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+                         window.navigator.standalone === true;
+
+    // Show PWA tutorial first for iPhone users who haven't installed yet
+    if (isIOS && !isStandalone && !hasSeenPWA) {
+      pwaModal.classList.add('active');
+      
+      pwaSkipBtn.addEventListener('click', () => {
+        pwaModal.classList.remove('active');
+        localStorage.setItem('tww_seen_pwa', 'true');
+        
+        // Show regular tutorial if first visit
+        if (!hasVisited) {
+          welcomeModal.classList.add('active');
+        }
+      });
+    } else {
+      // Show regular tutorial if first visit
+      if (!hasVisited) {
+        welcomeModal.classList.add('active');
+      }
     }
 
     startBtn.addEventListener('click', () => {

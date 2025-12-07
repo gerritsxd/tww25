@@ -1266,6 +1266,111 @@ input, textarea {
   transform: translateY(0);
 }
 
+/* PWA Install Tutorial */
+.pwa-tutorial {
+  max-width: 500px;
+  text-align: center;
+  padding: 40px 30px;
+}
+
+.pwa-icon {
+  font-size: 80px;
+  margin-bottom: 20px;
+  animation: bounce 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.pwa-tutorial h1 {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  line-height: 1.3;
+}
+
+.pwa-steps {
+  margin: 30px 0;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.pwa-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.pwa-step-number {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  background: var(--accent);
+  color: var(--bg-dark);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.pwa-step-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pwa-step-content strong {
+  font-size: 16px;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.pwa-hint {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.pwa-benefits {
+  background: var(--bg-elevated);
+  padding: 20px;
+  border-radius: var(--radius-sm);
+  text-align: left;
+  margin: 20px 0;
+  border: 1px solid var(--accent);
+}
+
+.pwa-benefits strong {
+  display: block;
+  margin-bottom: 12px;
+  color: var(--accent);
+  font-size: 16px;
+}
+
+.pwa-benefits ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pwa-benefits li {
+  font-size: 15px;
+  color: var(--text-primary);
+}
+
 /* Mobile adjustments for welcome */
 @media (max-width: 480px) {
   .welcome-tutorial {

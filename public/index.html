@@ -147,8 +147,60 @@
   <!-- Toast notifications -->
   <div class="toast-container" id="toastContainer"></div>
 
+  <!-- PWA Install Tutorial (iPhone only, shows first) -->
+  <div class="modal" id="pwaModal">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content pwa-tutorial">
+      <div class="pwa-icon">📱</div>
+      <h1>Install TWW for Best Experience</h1>
+      <p class="welcome-subtitle">iPhone users: Install as an app for instant tap response!</p>
+      
+      <div class="pwa-steps">
+        <div class="pwa-step">
+          <span class="pwa-step-number">1</span>
+          <div class="pwa-step-content">
+            <strong>Tap the Share button</strong>
+            <span class="pwa-hint">Square with arrow at bottom of screen</span>
+          </div>
+        </div>
+        <div class="pwa-step">
+          <span class="pwa-step-number">2</span>
+          <div class="pwa-step-content">
+            <strong>Scroll down & tap "Add to Home Screen"</strong>
+            <span class="pwa-hint">Look for the + icon</span>
+          </div>
+        </div>
+        <div class="pwa-step">
+          <span class="pwa-step-number">3</span>
+          <div class="pwa-step-content">
+            <strong>Tap "Add" in the top right</strong>
+            <span class="pwa-hint">TWW icon will appear on your home screen</span>
+          </div>
+        </div>
+        <div class="pwa-step">
+          <span class="pwa-step-number">4</span>
+          <div class="pwa-step-content">
+            <strong>Open the app from your home screen</strong>
+            <span class="pwa-hint">Runs full-screen like a real app! 🚀</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pwa-benefits">
+        <strong>Why install?</strong>
+        <ul>
+          <li>⚡ Instant tap response (no delay!)</li>
+          <li>📱 Full-screen mode</li>
+          <li>🎯 Works perfectly on iPhone</li>
+        </ul>
+      </div>
+      
+      <button class="btn-primary welcome-btn" id="pwaSkipBtn">Continue to App</button>
+    </div>
+  </div>
+
   <!-- Welcome tutorial -->
-  <div class="modal active" id="welcomeModal">
+  <div class="modal" id="welcomeModal">
     <div class="modal-backdrop"></div>
     <div class="modal-content welcome-tutorial">
       <div class="welcome-icon">◉</div>
