@@ -870,6 +870,28 @@
     const startBtn = document.getElementById('startBtn');
     const hasVisited = localStorage.getItem('tww_visited');
 
+    // Detect iOS/iPhone
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+    // Update tutorial text for iOS users
+    if (isIOS) {
+      const hintBar = document.getElementById('hintBar');
+      const tutorialSteps = document.querySelectorAll('.tutorial-step .step-text');
+      
+      if (hintBar) {
+        hintBar.querySelector('span').textContent = '👉 Hold map for 1 sec to drop a bubble';
+      }
+      
+      tutorialSteps.forEach(step => {
+        if (step.textContent.includes('Tap-tap or hold bubbles')) {
+          step.textContent = '👉 Hold bubbles for 1 sec to see details';
+        } else if (step.textContent.includes('Tap-tap or hold map')) {
+          step.textContent = '👉 Hold map for 1 sec to drop your bubble';
+        }
+      });
+    }
+
     if (hasVisited) {
       // User has visited before, hide welcome
       welcomeModal.classList.remove('active');
