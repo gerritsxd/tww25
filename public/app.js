@@ -96,26 +96,57 @@
     // No clustering - we want to see individual bubble sizes!
     // Bubbles are added directly to map
 
-    // Double-tap/double-click on map to create a bubble (with iOS fix)
+    // Double-tap/double-click on map to create a bubble (iOS-friendly)
     let lastTap = 0;
     let lastTapPos = null;
+    let longPressTimer = null;
+    let longPressPos = null;
     
+    // Method 1: Double-tap detection (longer window for iOS)
     map.on('click', (e) => {
       const now = Date.now();
       const tapPos = { lat: e.latlng.lat, lng: e.latlng.lng };
       
-      // Check if this is a double-tap (within 500ms and same position)
-      if (lastTap && (now - lastTap) < 500 && lastTapPos) {
+      // Check if this is a double-tap (within 600ms for iOS)
+      if (lastTap && (now - lastTap) < 600 && lastTapPos) {
         const distance = Math.abs(tapPos.lat - lastTapPos.lat) + Math.abs(tapPos.lng - lastTapPos.lng);
-        if (distance < 0.0001) { // Same position
+        if (distance < 0.0001) {
           handleMapDoubleClick(e);
-          lastTap = 0; // Reset
+          lastTap = 0;
           return;
         }
       }
       
       lastTap = now;
       lastTapPos = tapPos;
+    });
+    
+    // Method 2: Long press (hold for 500ms) - iOS fallback
+    map.on('mousedown touchstart', (e) => {
+      const latlng = e.latlng;
+      longPressPos = latlng;
+      
+      longPressTimer = setTimeout(() => {
+        // Show visual feedback
+        const pulseMarker = L.circleMarker(latlng, {
+          radius: 30,
+          color: '#00f5d4',
+          fillColor: '#00f5d4',
+          fillOpacity: 0.3,
+          weight: 2
+        }).addTo(map);
+        
+        setTimeout(() => map.removeLayer(pulseMarker), 300);
+        
+        handleMapDoubleClick({ latlng });
+      }, 500);
+    });
+    
+    map.on('mouseup touchend mousemove touchmove', () => {
+      if (longPressTimer) {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+      }
     });
     
     // Keep dblclick for desktop
@@ -309,19 +340,35 @@
     const icon = createBubbleIcon(bubble);
     const marker = L.marker([bubble.lat, bubble.lng], { icon });
 
-    // Double-tap to open bubble details (iOS-friendly)
+    // Double-tap to open bubble details (iOS-friendly with long-press fallback)
     let markerLastTap = 0;
+    let markerLongPress = null;
     
     marker.on('click', (e) => {
       L.DomEvent.stopPropagation(e);
       const now = Date.now();
       
-      if (markerLastTap && (now - markerLastTap) < 500) {
-        // Double-tap detected!
+      // Double-tap detection (600ms window for iOS)
+      if (markerLastTap && (now - markerLastTap) < 600) {
         openBubble(bubble.id);
         markerLastTap = 0;
       } else {
         markerLastTap = now;
+      }
+    });
+    
+    // Long-press alternative for iOS (hold 500ms)
+    marker.on('mousedown touchstart', (e) => {
+      L.DomEvent.stopPropagation(e);
+      markerLongPress = setTimeout(() => {
+        openBubble(bubble.id);
+      }, 500);
+    });
+    
+    marker.on('mouseup touchend mousemove touchmove', () => {
+      if (markerLongPress) {
+        clearTimeout(markerLongPress);
+        markerLongPress = null;
       }
     });
     
