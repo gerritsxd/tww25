@@ -820,15 +820,15 @@ body {
 
 /* Welcome Tutorial */
 .welcome-tutorial {
-  max-width: 400px;
+  max-width: 500px;
   text-align: center;
-  padding: 40px 30px 30px;
+  padding: 50px 40px 40px;
 }
 
 .welcome-icon {
-  font-size: 60px;
+  font-size: 70px;
   color: var(--accent);
-  margin-bottom: 20px;
+  margin-bottom: 24px;
   animation: pulse 2s ease-in-out infinite;
 }
 
@@ -838,9 +838,9 @@ body {
 }
 
 .welcome-tutorial h1 {
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 300;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
   line-height: 1.2;
 }
 
@@ -850,9 +850,9 @@ body {
 }
 
 .welcome-subtitle {
-  font-size: 15px;
+  font-size: 17px;
   color: var(--text-secondary);
-  margin-bottom: 30px;
+  margin-bottom: 35px;
 }
 
 .tutorial-steps {
@@ -874,21 +874,23 @@ body {
 }
 
 .step-icon {
-  font-size: 28px;
+  font-size: 32px;
   flex-shrink: 0;
 }
 
 .step-text {
-  font-size: 15px;
+  font-size: 16px;
   color: var(--text-primary);
-  line-height: 1.4;
+  line-height: 1.5;
+  font-weight: 400;
 }
 
 .welcome-footer {
-  font-size: 14px;
+  font-size: 15px;
   color: var(--text-muted);
-  margin-bottom: 24px;
+  margin-bottom: 28px;
   font-style: italic;
+  font-weight: 500;
 }
 
 .welcome-btn {

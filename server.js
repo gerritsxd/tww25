@@ -212,7 +212,7 @@ app.post('/api/bubbles', upload.single('media'), (req, res) => {
     let mediaType = null;
     
     if (req.file) {
-      mediaUrl = `/uploads/${req.file.filename}`;
+      mediaUrl = `/tww/uploads/${req.file.filename}`;
       const ext = path.extname(req.file.filename).toLowerCase();
       if (['.jpg', '.jpeg', '.png', '.gif', '.webp'].includes(ext)) {
         mediaType = 'image';
