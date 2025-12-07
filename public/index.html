@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0a0a0f">
+  <title>TheWhereWhat</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="map"></div>
+  
+  <!-- Header -->
+  <header class="header">
+    <div class="logo">
+      <span class="logo-icon">◉</span>
+      <span class="logo-text">the<strong>where</strong>what</span>
+    </div>
+    <button class="btn-locate" id="locateBtn" title="Find my location">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M12 2v4m0 12v4M2 12h4m12 0h4"/>
+      </svg>
+    </button>
+  </header>
+
+  <!-- Hint for posting -->
+  <div class="hint-bar" id="hintBar">
+    <span>Double-tap map to drop a bubble</span>
+  </div>
+
+  <!-- Stats bar -->
+  <div class="stats-bar">
+    <div class="stat">
+      <span class="stat-value" id="bubbleCount">0</span>
+      <span class="stat-label">bubbles nearby</span>
+    </div>
+  </div>
+
+  <!-- Create bubble modal -->
+  <div class="modal" id="createModal">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Drop a Bubble</h2>
+        <button class="modal-close" id="closeCreate">&times;</button>
+      </div>
+      <form id="createForm">
+        <div class="form-group">
+          <label for="title">What's happening?</label>
+          <input type="text" id="title" name="title" placeholder="Concert at Joe's Bar" maxlength="100" required>
+        </div>
+        <div class="form-group">
+          <label for="caption">Details (optional)</label>
+          <textarea id="caption" name="caption" placeholder="Live jazz band, $10 cover, starts at 9pm..." rows="3" maxlength="500"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Add media (optional)</label>
+          <div class="media-upload" id="mediaUpload">
+            <input type="file" id="mediaInput" name="media" accept="image/*,video/*,audio/*" hidden>
+            <div class="upload-placeholder" id="uploadPlaceholder">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                <circle cx="8.5" cy="8.5" r="1.5"/>
+                <path d="M21 15l-5-5L5 21"/>
+              </svg>
+              <span>Tap to add photo/video/audio</span>
+            </div>
+            <div class="upload-preview" id="uploadPreview" hidden>
+              <img id="previewImg" alt="Preview">
+              <video id="previewVideo" controls></video>
+              <audio id="previewAudio" controls></audio>
+              <button type="button" class="remove-media" id="removeMedia">&times;</button>
+            </div>
+          </div>
+        </div>
+        <div class="form-group location-info">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+          <span id="locationText">Getting location...</span>
+        </div>
+        <button type="submit" class="btn-submit" id="submitBtn">
+          <span>Drop Bubble</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+          </svg>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- View bubble modal -->
+  <div class="modal" id="viewModal">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content bubble-view">
+      <button class="modal-close" id="closeView">&times;</button>
+      <div class="bubble-media" id="bubbleMedia"></div>
+      <div class="bubble-info">
+        <h2 id="bubbleTitle"></h2>
+        <p id="bubbleCaption"></p>
+        <div class="bubble-meta">
+          <span class="bubble-time" id="bubbleTime"></span>
+        </div>
+      </div>
+      <div class="vote-section">
+        <button class="vote-btn downvote" id="downvoteBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M6 9l6 6 6-6"/>
+          </svg>
+        </button>
+        <div class="score" id="bubbleScore">0</div>
+        <button class="vote-btn upvote" id="upvoteBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M18 15l-6-6-6 6"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast notifications -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
+
