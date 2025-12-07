@@ -96,61 +96,8 @@
     // No clustering - we want to see individual bubble sizes!
     // Bubbles are added directly to map
 
-    // Double-tap/double-click on map to create a bubble (iOS-friendly)
-    let lastTap = 0;
-    let lastTapPos = null;
-    let longPressTimer = null;
-    let longPressPos = null;
-    
-    // Method 1: Double-tap detection (longer window for iOS)
-    map.on('click', (e) => {
-      const now = Date.now();
-      const tapPos = { lat: e.latlng.lat, lng: e.latlng.lng };
-      
-      // Check if this is a double-tap (within 600ms for iOS)
-      if (lastTap && (now - lastTap) < 600 && lastTapPos) {
-        const distance = Math.abs(tapPos.lat - lastTapPos.lat) + Math.abs(tapPos.lng - lastTapPos.lng);
-        if (distance < 0.0001) {
-          handleMapDoubleClick(e);
-          lastTap = 0;
-          return;
-        }
-      }
-      
-      lastTap = now;
-      lastTapPos = tapPos;
-    });
-    
-    // Method 2: Long press (hold for 500ms) - iOS fallback
-    map.on('mousedown touchstart', (e) => {
-      const latlng = e.latlng;
-      longPressPos = latlng;
-      
-      longPressTimer = setTimeout(() => {
-        // Show visual feedback
-        const pulseMarker = L.circleMarker(latlng, {
-          radius: 30,
-          color: '#00f5d4',
-          fillColor: '#00f5d4',
-          fillOpacity: 0.3,
-          weight: 2
-        }).addTo(map);
-        
-        setTimeout(() => map.removeLayer(pulseMarker), 300);
-        
-        handleMapDoubleClick({ latlng });
-      }, 500);
-    });
-    
-    map.on('mouseup touchend mousemove touchmove', () => {
-      if (longPressTimer) {
-        clearTimeout(longPressTimer);
-        longPressTimer = null;
-      }
-    });
-    
-    // Keep dblclick for desktop
-    map.on('dblclick', handleMapDoubleClick);
+    // Single tap/click on map to create a bubble
+    map.on('click', handleMapDoubleClick);
 
     // Get user location
     locateUser();
@@ -340,40 +287,8 @@
     const icon = createBubbleIcon(bubble);
     const marker = L.marker([bubble.lat, bubble.lng], { icon });
 
-    // Double-tap to open bubble details (iOS-friendly with long-press fallback)
-    let markerLastTap = 0;
-    let markerLongPress = null;
-    
+    // Single tap/click to open bubble details
     marker.on('click', (e) => {
-      L.DomEvent.stopPropagation(e);
-      const now = Date.now();
-      
-      // Double-tap detection (600ms window for iOS)
-      if (markerLastTap && (now - markerLastTap) < 600) {
-        openBubble(bubble.id);
-        markerLastTap = 0;
-      } else {
-        markerLastTap = now;
-      }
-    });
-    
-    // Long-press alternative for iOS (hold 500ms)
-    marker.on('mousedown touchstart', (e) => {
-      L.DomEvent.stopPropagation(e);
-      markerLongPress = setTimeout(() => {
-        openBubble(bubble.id);
-      }, 500);
-    });
-    
-    marker.on('mouseup touchend mousemove touchmove', () => {
-      if (markerLongPress) {
-        clearTimeout(markerLongPress);
-        markerLongPress = null;
-      }
-    });
-    
-    // Keep dblclick for desktop
-    marker.on('dblclick', (e) => {
       L.DomEvent.stopPropagation(e);
       openBubble(bubble.id);
     });
@@ -869,28 +784,6 @@
     const welcomeModal = document.getElementById('welcomeModal');
     const startBtn = document.getElementById('startBtn');
     const hasVisited = localStorage.getItem('tww_visited');
-
-    // Detect iOS/iPhone
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
-                  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-
-    // Update tutorial text for iOS users
-    if (isIOS) {
-      const hintBar = document.getElementById('hintBar');
-      const tutorialSteps = document.querySelectorAll('.tutorial-step .step-text');
-      
-      if (hintBar) {
-        hintBar.querySelector('span').textContent = '👉 Hold map for 1 sec to drop a bubble';
-      }
-      
-      tutorialSteps.forEach(step => {
-        if (step.textContent.includes('Tap-tap or hold bubbles')) {
-          step.textContent = '👉 Hold bubbles for 1 sec to see details';
-        } else if (step.textContent.includes('Tap-tap or hold map')) {
-          step.textContent = '👉 Hold map for 1 sec to drop your bubble';
-        }
-      });
-    }
 
     if (hasVisited) {
       // User has visited before, hide welcome
