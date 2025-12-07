@@ -818,3 +818,126 @@ body {
   pointer-events: none;
 }
 
+/* Welcome Tutorial */
+.welcome-tutorial {
+  max-width: 400px;
+  text-align: center;
+  padding: 40px 30px 30px;
+}
+
+.welcome-icon {
+  font-size: 60px;
+  color: var(--accent);
+  margin-bottom: 20px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.05); }
+}
+
+.welcome-tutorial h1 {
+  font-size: 28px;
+  font-weight: 300;
+  margin-bottom: 8px;
+  line-height: 1.2;
+}
+
+.welcome-tutorial h1 strong {
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.welcome-subtitle {
+  font-size: 15px;
+  color: var(--text-secondary);
+  margin-bottom: 30px;
+}
+
+.tutorial-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 30px;
+  text-align: left;
+}
+
+.tutorial-step {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: rgba(255,255,255,0.03);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.step-icon {
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.step-text {
+  font-size: 15px;
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
+.welcome-footer {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+  font-style: italic;
+}
+
+.welcome-btn {
+  width: 100%;
+  padding: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, var(--accent), var(--hot));
+  color: var(--bg-dark);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 20px rgba(0, 245, 212, 0.3);
+}
+
+.welcome-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(0, 245, 212, 0.4);
+}
+
+.welcome-btn:active {
+  transform: translateY(0);
+}
+
+/* Mobile adjustments for welcome */
+@media (max-width: 480px) {
+  .welcome-tutorial {
+    padding: 30px 20px 20px;
+  }
+  
+  .welcome-icon {
+    font-size: 50px;
+  }
+  
+  .welcome-tutorial h1 {
+    font-size: 24px;
+  }
+  
+  .tutorial-step {
+    padding: 12px;
+  }
+  
+  .step-icon {
+    font-size: 24px;
+  }
+  
+  .step-text {
+    font-size: 14px;
+  }
+}
+

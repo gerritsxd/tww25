@@ -129,6 +129,35 @@
   <!-- Toast notifications -->
   <div class="toast-container" id="toastContainer"></div>
 
+  <!-- Welcome tutorial -->
+  <div class="modal active" id="welcomeModal">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content welcome-tutorial">
+      <div class="welcome-icon">◉</div>
+      <h1>Welcome to <strong>TheWhereWhat</strong></h1>
+      <p class="welcome-subtitle">Real-time map of what's happening around you</p>
+      
+      <div class="tutorial-steps">
+        <div class="tutorial-step">
+          <span class="step-icon">🗺️</span>
+          <span class="step-text">See events & happenings near you</span>
+        </div>
+        <div class="tutorial-step">
+          <span class="step-icon">👆</span>
+          <span class="step-text">Double-tap map to drop your own bubble</span>
+        </div>
+        <div class="tutorial-step">
+          <span class="step-icon">🔥</span>
+          <span class="step-text">Upvote cool stuff, bubbles grow bigger</span>
+        </div>
+      </div>
+
+      <p class="welcome-footer">No login. No BS. Just what's happening NOW.</p>
+      
+      <button class="btn-primary welcome-btn" id="startBtn">Let's Go 🚀</button>
+    </div>
+  </div>
+
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="app.js"></script>
 </body>

@@ -687,7 +687,27 @@
   // ===========================================
   // INIT
   // ===========================================
+  // ===========================================
+  // WELCOME TUTORIAL
+  // ===========================================
+  function initWelcome() {
+    const welcomeModal = document.getElementById('welcomeModal');
+    const startBtn = document.getElementById('startBtn');
+    const hasVisited = localStorage.getItem('tww_visited');
+
+    if (hasVisited) {
+      // User has visited before, hide welcome
+      welcomeModal.classList.remove('active');
+    }
+
+    startBtn.addEventListener('click', () => {
+      welcomeModal.classList.remove('active');
+      localStorage.setItem('tww_visited', 'true');
+    });
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
+    initWelcome();
     initMap();
     initEventListeners();
   });
