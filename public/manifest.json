@@ -1,0 +1,33 @@
+{
+  "name": "TheWhereWhat",
+  "short_name": "TWW",
+  "description": "Real-time map of what's happening around you",
+  "start_url": "/tww/",
+  "display": "standalone",
+  "background_color": "#0a0a0f",
+  "theme_color": "#00f5d4",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/tww/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/tww/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["social", "navigation"],
+  "screenshots": [
+    {
+      "src": "/tww/screenshot.png",
+      "sizes": "1170x2532",
+      "type": "image/png"
+    }
+  ]
+}
+

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>TWW Icon Generator</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      padding: 50px;
+      background: #0a0a0f;
+      color: white;
+      font-family: Arial;
+    }
+    canvas {
+      border: 2px solid #00f5d4;
+    }
+    button {
+      padding: 15px 30px;
+      background: #00f5d4;
+      color: #0a0a0f;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>TWW Icon Generator</h1>
+  <canvas id="canvas192" width="192" height="192"></canvas>
+  <button onclick="download('192')">Download 192x192</button>
+  
+  <canvas id="canvas512" width="512" height="512"></canvas>
+  <button onclick="download('512')">Download 512x512</button>
+  
+  <script>
+    function drawIcon(canvas, size) {
+      const ctx = canvas.getContext('2d');
+      
+      // Background
+      ctx.fillStyle = '#0a0a0f';
+      ctx.fillRect(0, 0, size, size);
+      
+      // Gradient circle
+      const gradient = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2);
+      gradient.addColorStop(0, '#00f5d4');
+      gradient.addColorStop(1, '#0a0a0f');
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.arc(size/2, size/2, size/2.5, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Dot
+      ctx.fillStyle = '#00f5d4';
+      ctx.beginPath();
+      ctx.arc(size/2, size/2, size/8, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Glow
+      ctx.shadowBlur = size/10;
+      ctx.shadowColor = '#00f5d4';
+      ctx.fillStyle = '#00f5d4';
+      ctx.beginPath();
+      ctx.arc(size/2, size/2, size/8, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Text "TWW"
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = '#ffffff';
+      ctx.font = `bold ${size/5}px Arial`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      ctx.fillText('TWW', size/2, size - size/10);
+    }
+    
+    drawIcon(document.getElementById('canvas192'), 192);
+    drawIcon(document.getElementById('canvas512'), 512);
+    
+    function download(size) {
+      const canvas = document.getElementById('canvas' + size);
+      const link = document.createElement('a');
+      link.download = 'icon-' + size + '.png';
+      link.href = canvas.toDataURL();
+      link.click();
+    }
+  </script>
+</body>
+</html>
+

@@ -28,6 +28,9 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  /* PWA: Remove tap delay on iOS */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -36,6 +39,17 @@ body {
   color: var(--text-primary);
   overflow: hidden;
   -webkit-font-smoothing: antialiased;
+  /* PWA: Prevent pull-to-refresh on iOS */
+  overscroll-behavior-y: none;
+  /* PWA: Disable text selection for app-like feel */
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* PWA: Re-enable text selection for inputs */
+input, textarea {
+  -webkit-user-select: text;
+  user-select: text;
 }
 
 /* Map */
