@@ -82,6 +82,45 @@ async function initDatabase() {
     )
   `);
 
+  db.run(`
+    CREATE TABLE IF NOT EXISTS suggestions (
+      id TEXT PRIMARY KEY,
+      title TEXT NOT NULL,
+      description TEXT,
+      votes INTEGER DEFAULT 0,
+      created_at INTEGER NOT NULL,
+      creator_fingerprint TEXT NOT NULL
+    )
+  `);
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS suggestion_votes (
+      suggestion_id TEXT NOT NULL,
+      fingerprint TEXT NOT NULL,
+      PRIMARY KEY (suggestion_id, fingerprint)
+    )
+  `);
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS suggestions (
+      id TEXT PRIMARY KEY,
+      title TEXT NOT NULL,
+      description TEXT,
+      upvotes INTEGER DEFAULT 0,
+      created_at INTEGER NOT NULL,
+      creator_fingerprint TEXT NOT NULL,
+      status TEXT DEFAULT 'pending'
+    )
+  `);
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS suggestion_votes (
+      suggestion_id TEXT NOT NULL,
+      fingerprint TEXT NOT NULL,
+      PRIMARY KEY (suggestion_id, fingerprint)
+    )
+  `);
+
   // Add new columns if they don't exist (for migration)
   try {
     db.run(`ALTER TABLE bubbles ADD COLUMN bot_source TEXT DEFAULT NULL`);
@@ -304,6 +343,88 @@ app.get('/api/bubbles/:id/vote', (req, res) => {
   res.json({ vote: existingVote ? existingVote.vote : 0 });
 });
 
+// ===========================================
+// SUGGESTIONS API
+// ===========================================
+
+// Get all suggestions (sorted by votes)
+app.get('/api/suggestions', (req, res) => {
+  try {
+    const suggestions = dbAll('SELECT * FROM suggestions ORDER BY votes DESC, created_at DESC');
+    res.json(suggestions);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch suggestions' });
+  }
+});
+
+// Create a suggestion
+app.post('/api/suggestions', (req, res) => {
+  try {
+    const { title, description } = req.body;
+    const fingerprint = getFingerprint(req);
+    
+    if (!title || title.trim().length === 0) {
+      return res.status(400).json({ error: 'Title is required' });
+    }
+    
+    const id = uuidv4();
+    const now = Date.now();
+    
+    dbRun(
+      'INSERT INTO suggestions (id, title, description, votes, created_at, creator_fingerprint) VALUES (?, ?, ?, 0, ?, ?)',
+      [id, title.trim(), description ? description.trim() : null, now, fingerprint]
+    );
+    
+    const newSuggestion = dbGet('SELECT * FROM suggestions WHERE id = ?', [id]);
+    broadcast({ type: 'new_suggestion', suggestion: newSuggestion });
+    
+    res.json(newSuggestion);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to create suggestion' });
+  }
+});
+
+// Vote on a suggestion (toggle)
+app.post('/api/suggestions/:id/vote', (req, res) => {
+  try {
+    const { id } = req.params;
+    const fingerprint = getFingerprint(req);
+    
+    const suggestion = dbGet('SELECT * FROM suggestions WHERE id = ?', [id]);
+    if (!suggestion) {
+      return res.status(404).json({ error: 'Suggestion not found' });
+    }
+    
+    // Check if already voted
+    const existingVote = dbGet('SELECT * FROM suggestion_votes WHERE suggestion_id = ? AND fingerprint = ?', [id, fingerprint]);
+    
+    if (existingVote) {
+      // Remove vote
+      dbRun('DELETE FROM suggestion_votes WHERE suggestion_id = ? AND fingerprint = ?', [id, fingerprint]);
+      dbRun('UPDATE suggestions SET votes = votes - 1 WHERE id = ?', [id]);
+    } else {
+      // Add vote
+      dbRun('INSERT INTO suggestion_votes (suggestion_id, fingerprint) VALUES (?, ?)', [id, fingerprint]);
+      dbRun('UPDATE suggestions SET votes = votes + 1 WHERE id = ?', [id]);
+    }
+    
+    const updatedSuggestion = dbGet('SELECT * FROM suggestions WHERE id = ?', [id]);
+    broadcast({ type: 'update_suggestion', suggestion: updatedSuggestion });
+    
+    res.json({ success: true, votes: updatedSuggestion.votes, voted: !existingVote });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to vote' });
+  }
+});
+
+// Check if user voted on a suggestion
+app.get('/api/suggestions/:id/vote', (req, res) => {
+  const { id } = req.params;
+  const fingerprint = getFingerprint(req);
+  const voted = dbGet('SELECT * FROM suggestion_votes WHERE suggestion_id = ? AND fingerprint = ?', [id, fingerprint]);
+  res.json({ voted: !!voted });
+});
+
 // Cleanup old bubbles periodically (runs every 5 minutes)
 setInterval(() => {
   if (!db) return;
@@ -413,6 +534,83 @@ app.post('/api/cleanup', (req, res) => {
     
     broadcast({ type: 'cleanup' });
     res.json({ success: true, deleted });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ===========================================
+// SUGGESTION SYSTEM
+// ===========================================
+
+// API: Get all suggestions
+app.get('/api/suggestions', (req, res) => {
+  try {
+    const suggestions = dbAll('SELECT * FROM suggestions ORDER BY upvotes DESC, created_at DESC');
+    res.json(suggestions);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// API: Create suggestion
+app.post('/api/suggestions', (req, res) => {
+  try {
+    const { title, description } = req.body;
+    const fingerprint = getFingerprint(req);
+    
+    if (!title || title.length < 5) {
+      return res.status(400).json({ error: 'Title too short' });
+    }
+    
+    const id = uuidv4();
+    const now = Date.now();
+    
+    dbRun(
+      'INSERT INTO suggestions (id, title, description, upvotes, created_at, creator_fingerprint) VALUES (?, ?, ?, 0, ?, ?)',
+      [id, title, description || '', now, fingerprint]
+    );
+    
+    res.json({ success: true, id });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// API: Upvote suggestion
+app.post('/api/suggestions/:id/upvote', (req, res) => {
+  try {
+    const { id } = req.params;
+    const fingerprint = getFingerprint(req);
+    
+    // Check if already voted
+    const existingVote = dbGet(
+      'SELECT * FROM suggestion_votes WHERE suggestion_id = ? AND fingerprint = ?',
+      [id, fingerprint]
+    );
+    
+    if (existingVote) {
+      return res.status(400).json({ error: 'Already voted' });
+    }
+    
+    // Add vote
+    dbRun('INSERT INTO suggestion_votes (suggestion_id, fingerprint) VALUES (?, ?)', [id, fingerprint]);
+    dbRun('UPDATE suggestions SET upvotes = upvotes + 1 WHERE id = ?', [id]);
+    
+    const suggestion = dbGet('SELECT * FROM suggestions WHERE id = ?', [id]);
+    res.json({ success: true, upvotes: suggestion.upvotes });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// API: Check if user voted on suggestion
+app.get('/api/suggestions/:id/vote', (req, res) => {
+  try {
+    const { id } = req.params;
+    const fingerprint = getFingerprint(req);
+    const vote = dbGet('SELECT * FROM suggestion_votes WHERE suggestion_id = ? AND fingerprint = ?', [id, fingerprint]);
+    res.json({ voted: !!vote });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

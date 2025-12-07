@@ -688,6 +688,98 @@
   // INIT
   // ===========================================
   // ===========================================
+  // SUGGESTIONS / FEEDBACK
+  // ===========================================
+  function initSuggestions() {
+    const suggestionsModal = document.getElementById('suggestionsModal');
+    const feedbackBtn = document.getElementById('feedbackBtn');
+    const closeSuggestionsBtn = document.getElementById('closeSuggestions');
+    const suggestionForm = document.getElementById('suggestionForm');
+    const suggestionsList = document.getElementById('suggestionsList');
+
+    feedbackBtn.addEventListener('click', () => {
+      suggestionsModal.classList.add('active');
+      loadSuggestions();
+    });
+
+    closeSuggestionsBtn.addEventListener('click', () => {
+      suggestionsModal.classList.remove('active');
+    });
+
+    suggestionForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const title = document.getElementById('suggestionTitle').value;
+      const description = document.getElementById('suggestionDescription').value;
+      
+      try {
+        const response = await fetch('/tww/api/suggestions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, description })
+        });
+        
+        if (response.ok) {
+          suggestionForm.reset();
+          showToast('Idea submitted! 🎉');
+          loadSuggestions();
+        }
+      } catch (error) {
+        showToast('Failed to submit idea');
+      }
+    });
+
+    async function loadSuggestions() {
+      try {
+        const response = await fetch('/tww/api/suggestions');
+        const suggestions = await response.json();
+        
+        if (suggestions.length === 0) {
+          suggestionsList.innerHTML = '<div class="no-suggestions">Be the first to suggest something! 💡</div>';
+          return;
+        }
+        
+        suggestionsList.innerHTML = '';
+        
+        for (const suggestion of suggestions) {
+          const voteResponse = await fetch(`/tww/api/suggestions/${suggestion.id}/vote`);
+          const voteData = await voteResponse.json();
+          
+          const item = document.createElement('div');
+          item.className = 'suggestion-item';
+          item.innerHTML = `
+            <button class="suggestion-vote ${voteData.voted ? 'voted' : ''}" data-id="${suggestion.id}">
+              <span class="vote-icon">▲</span>
+              <span class="vote-number">${suggestion.votes}</span>
+            </button>
+            <div class="suggestion-content">
+              <div class="suggestion-title">${escapeHtml(suggestion.title)}</div>
+              ${suggestion.description ? `<div class="suggestion-description">${escapeHtml(suggestion.description)}</div>` : ''}
+              <div class="suggestion-time">${getTimeAgo(suggestion.created_at)}</div>
+            </div>
+          `;
+          
+          const voteBtn = item.querySelector('.suggestion-vote');
+          voteBtn.addEventListener('click', async () => {
+            try {
+              const res = await fetch(`/tww/api/suggestions/${suggestion.id}/vote`, { method: 'POST' });
+              const data = await res.json();
+              voteBtn.classList.toggle('voted', data.voted);
+              voteBtn.querySelector('.vote-number').textContent = data.votes;
+            } catch (error) {
+              console.error('Vote failed:', error);
+            }
+          });
+          
+          suggestionsList.appendChild(item);
+        }
+      } catch (error) {
+        suggestionsList.innerHTML = '<div class="suggestions-error">Failed to load suggestions</div>';
+      }
+    }
+  }
+
+  // ===========================================
   // WELCOME TUTORIAL
   // ===========================================
   function initWelcome() {
@@ -708,6 +800,7 @@
 
   document.addEventListener('DOMContentLoaded', () => {
     initWelcome();
+    initSuggestions();
     initMap();
     initEventListeners();
   });
